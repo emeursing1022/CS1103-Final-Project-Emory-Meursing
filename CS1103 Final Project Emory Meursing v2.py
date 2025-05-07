@@ -118,7 +118,7 @@ def main():
     catAPI.prompt_for_message()
     catAPI.fetch_and_save_cat_image()
 
-    # While the user is in the code, continue to ask them if they would like to continue
+    # While the user is in the code, ask them if they would like to continue, search through photos found in that session, or exit
     while True:
         action = catAPI.prompt_for_next_action()
         if action == catAPI.USER_INPUT_YES:
