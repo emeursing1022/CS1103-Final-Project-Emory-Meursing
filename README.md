@@ -1,6 +1,6 @@
 # CS1103 Final Project Emory Meursing
 
-Intended use:
+Directions:
 1) Start the code
 2) Input the message you would like the cat to say (or lackthereof)
 3) See the funny cat
