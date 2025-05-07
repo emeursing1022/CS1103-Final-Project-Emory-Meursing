@@ -2,6 +2,12 @@
 """
 @author: Emory Meursing
 
+Summary:
+    Code is designed to make an API call to cataas.com to grab a cat photo, with or without a message the user added. The program will prompt the user whether 
+    they want the cat to say something, to continue gathering cat photos, to stop the program, or to search through all cat photos gathered in the session. 
+    The code uses a class structure to handle all logic, with different methods being used for the API call itself, prompting the user to see if they want
+    the cat photo to say something, searching through the session's photos, and prompting the user to continue/end/search.
+
 Directions:
     1) Start the code
     2) Input the message you would like the cat to say (or lackthereof)
