@@ -24,17 +24,19 @@ from datetime import datetime
 from pathlib import Path
 from PIL import Image
 
+# Prompt the user whether they want the cat to say something, to continue gathering cat photos, to stop the program, 
+# or to search through all cat photos gathered in the session. 
 class CatAPI:
     USER_INPUT_YES = "yes"
     USER_INPUT_SEARCH = "search"
     USER_INPUT_NO = "no"
 
-    # Set the output directory
+    # Set the output directory as the user's desktop and create a folder if it doesn't already exist
     def __init__(self):
-        self.session_images = []
-        self.desktop = Path.home() / "Desktop"
-        self.cat_photos_dir = self.desktop / "cat photos"
-        self.cat_photos_dir.mkdir(exist_ok=True)
+        self.session_images = [] # Stores paths to all cat images downloaded in this session
+        self.desktop = Path.home() / "Desktop" # Get user's desktop path
+        self.cat_photos_dir = self.desktop / "cat photos" # Define the file path for cat images
+        self.cat_photos_dir.mkdir(exist_ok=True) # Create the folder if it doesn't already exist
         self.message = None
 
     # Prompt the user to input something for the cat to say
@@ -46,9 +48,9 @@ class CatAPI:
     # API call to cataas.com to grab a cat image, with or without a message
     # Also checks for any web errors by making sure the API call returns the code 200
     def fetch_and_save_cat_image(self):
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"cat_{timestamp}.jpg"
-        filepath = self.cat_photos_dir / filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") # Generate unique timestamp for filename
+        filename = f"cat_{timestamp}.jpg" # Create filename using timestamp
+        filepath = self.cat_photos_dir / filename # Full path to save the image
 
         # API call formatting and a check to see if the user wants the cat to say something
         if self.message:
@@ -58,15 +60,18 @@ class CatAPI:
 
         # Actual API call, if status code = 200, the API call worked, else it failed to retreive an image
         try:
-            response = requests.get(url)
+            response = requests.get(url) # Perform the HTTP GET request
+            
+            # If status code = 200, valid call and save the image to a file, else print the error and restart code
             if response.status_code == 200:
                 with open(filepath, "wb") as f:
-                    f.write(response.content)
+                    f.write(response.content) # Save the image content to a file
                 print(f"Saved cat image to: {filepath}")
-                Image.open(filepath).show()
-                self.session_images.append(str(filepath))
+                Image.open(filepath).show() # Open the image using the default image software on the user's computer
+                self.session_images.append(str(filepath)) # Save the image path to session list
             else:
                 print(f"Failed to fetch cat image. Status code: {response.status_code}")
+                
         except requests.exceptions.RequestException as e:
             print(f"An error occurred: {e}")
 
@@ -74,6 +79,8 @@ class CatAPI:
     def prompt_for_next_action(self):
         while True:
             action = input("Would you like to download another cat image? (yes/no/search): ").strip().lower()
+            
+            # If valid user input, then do the corresponding action, else repeat the question
             if action in [self.USER_INPUT_YES, self.USER_INPUT_SEARCH, self.USER_INPUT_NO]:
                 return action
             else:
@@ -85,19 +92,27 @@ class CatAPI:
             print("No images in this session.")
             return
 
+        # Filter for files that match or partially match the user's input
         search_term = input("Enter part of the filename to search for: ").strip().lower()
         matches = [img for img in self.session_images if search_term in img.lower()]
 
         # Shows all matches based on the user's query
         if matches:
             print("Matching images:")
+            
+            # Display index and path of each matching image
             for i, img in enumerate(matches):
                 print(f"[{i}] {img}")
 
             while True:
                 choice = input("Enter the number of an image to open it, or press Enter to cancel: ").strip()
+                
+                # Exit if there is no input
                 if choice == "":
                     break
+                
+                # Check if the user's input is in the range, if it is, then open the image, if it's not, then ask the user to input a valid
+                # input or print an error if the image cannot be loaded for some reason
                 if choice.isdigit():
                     index = int(choice)
                     if 0 <= index < len(matches):
@@ -113,19 +128,27 @@ class CatAPI:
         else:
             print("No matches found.")
 
+
+# Main function to create a catAPI object then call its functions
 def main():
-    catAPI = CatAPI()
-    catAPI.prompt_for_message()
-    catAPI.fetch_and_save_cat_image()
+    catAPI = CatAPI() # Create a CatAPI object
+    catAPI.prompt_for_message() # Ask for an optional message from the CatAPI class
+    catAPI.fetch_and_save_cat_image() # Fetch and display the first image with or without a message
 
     # While the user is in the code, ask them if they would like to continue, search through photos found in that session, or exit
     while True:
         action = catAPI.prompt_for_next_action()
+        
+        # Ask for a new message and fetch a new image
         if action == catAPI.USER_INPUT_YES:
-            catAPI.prompt_for_message()
-            catAPI.fetch_and_save_cat_image()
+            catAPI.prompt_for_message() 
+            catAPI.fetch_and_save_cat_image() 
+        
+        # Search previously saved images
         elif action == catAPI.USER_INPUT_SEARCH:
             catAPI.search()
+            
+        # Exit the program and end the session
         else:
             print("Goodbye!")
             break
